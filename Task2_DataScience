@@ -1,0 +1,51 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# Correct path to the CSV file
+file = "D:\\DM\\Internship\\Iris.csv"
+data = pd.read_csv(file)
+
+# Check if the directory exists and create it if it doesn't
+import os
+
+try:
+    os.makedirs('D:\\DM\\Internship', exist_ok=True)
+except PermissionError as e:
+    print(f"PermissionError: {e}")
+
+# Display the first few rows of the dataset                                                          
+print(data.head())
+
+# Summary statistics
+print(data.describe())
+
+# Data visualization
+sns.pairplot(data.drop("Id", axis=1), hue="Species", height=3)
+plt.show()
+
+# Correlation matrix
+corr = data.drop("Id", axis=1).corr()
+sns.heatmap(corr, annot=True, cmap="coolwarm")
+plt.title('Correlation Matrix')
+plt.show()
+
+# Feature scaling          
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(data.iloc[:, 1:5])
+
+# Elbow Method to find the optimal number of clusters        
+wcss = []
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
+    kmeans.fit(scaled_features)
+    wcss.append(kmeans.inertia_)
+
+# Plotting the Elbow Method          
+plt.plot(range(1, 11), wcss)
+plt.title('Elbow Method')
+plt.xlabel('Number of clusters')
+plt.ylabel('WCSS')  # Within cluster sum of squares           
+plt.show()
